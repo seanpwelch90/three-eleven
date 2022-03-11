@@ -30,7 +30,8 @@ workOrderRouter.post('/wo', upload.single('image'), async (req, res) => {
 
   let workOrder = req.body;
   workOrder.location = JSON.parse(workOrder.location);
-  workOrder.status = '';
+  workOrder.status = 'Unassigned';
+  workOrder.dispatched = false;
   workOrder.photos = [];
   workOrder.photos[0] = req.file.location;
   WorkOrder.create(workOrder, (err, data) => {

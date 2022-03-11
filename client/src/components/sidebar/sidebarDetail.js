@@ -8,22 +8,31 @@ dayjs.extend(relativeTime);
 export const SidebarDetail = (props) => {
 
   const [isEditing, setIsEditing] = useState(false);
+  const [currentSelect, setCurrentSelect] = useState('');
 
   useEffect(() => {
+    setCurrentSelect(props.workOrder.status);
   }, [props]);
 
   const onChangeStatus = (e) => {
+    setCurrentSelect(e.target.value);
     let update = { status: e.target.value };
+    setIsEditing(true);
     axios.post(`http://localhost:5001/update/${props.workOrder._id}`, update)
     .then((res) => {
-      props.refresh();
     });
+  }
+
+  const saveAndRefresh = () => {
+    props.hideSidebar();
+    props.refresh();
+    setIsEditing(false);
   }
 
   return (
     <div className="sideBar_Detail" style={{ position: 'relative' }}>
       <button className="closeButton" style={{ position: 'absolute', top: 0, right: 0, borderRadius: '5px', marginBottom: -15, border: '1px solid #A8A8A8', padding: 10, paddingLeft: 20, paddingRight: 20 }} onClick={() => { props.hideSidebar() }} >X</button>
-      {isEditing ? <button style={{ position: 'absolute', top: 0, right: 70, borderRadius: '5px', marginBottom: -15, border: '1px solid #A8A8A8', padding: 10, paddingLeft: 20, paddingRight: 20 }} onClick={() => { props.hideSidebar() }} >Save</button> : null}
+      {isEditing ? <button style={{ position: 'absolute', top: 0, right: 70, borderRadius: '5px', marginBottom: -15, border: '1px solid #A8A8A8', padding: 10, paddingLeft: 20, paddingRight: 20 }} onClick={() => { saveAndRefresh() }} >Save</button> : null}
 
       <div className="labelContainer" style={{ borderBottom: '1px solid #A8A8A8', paddingBottom: 15, }}>
         <h3>{props.workOrder.description}</h3>
@@ -31,6 +40,7 @@ export const SidebarDetail = (props) => {
       </div>
       <div className="detailRow" style={{ borderBottom: '1px solid #A8A8A8', paddingBottom: 15 }}>
       <div className="labelContainer">
+
           <p><strong>{props.workOrder.type}</strong></p>
           <label>Type</label>
         </div>
@@ -49,8 +59,9 @@ export const SidebarDetail = (props) => {
           <p><strong>{dayjs().to(dayjs(props.workOrder.dateRequested))}</strong></p>
           <label>Date</label>
         </div>
+
         <div className="labelContainer">
-          <select style={{ border: '1px solid #A8A8A8', padding: 4, borderRadius: 5, marginTop: 15, fontFamily: 'inherit', fontWeight: 700, backgroundColor: 'transparent' }} defaultValue={props.workOrder.status} onChange={onChangeStatus}>
+          <select style={{ border: '1px solid #A8A8A8', padding: 4, borderRadius: 5, marginTop: 15, fontFamily: 'inherit', fontWeight: 700, backgroundColor: 'transparent' }} value={currentSelect} onChange={(e) => {onChangeStatus(e)}}>
             <option value="unassigned">Unassigned</option>
             <option value="normal">Normal</option>
             <option value="important">Important</option>
@@ -58,7 +69,6 @@ export const SidebarDetail = (props) => {
           </select><br />
           <label>Status</label>
         </div>
-
       </div>
 
       <p className="titleLabel" style={{ paddingTop: 5, marginBottom: 5 }}>Additional Information</p>
